@@ -1,0 +1,109 @@
+/* Box Office Charts, by Greg and Kathy Gibson of accessbollywood.com */
+
+/* .SCSS Vars */
+
+$mainTextColor: #111;
+$headerTextColor: #7386b2;
+$chartHeaderColor: #7386b2;
+$accentColor: #e9ecf3;
+$mainBgColor: #fff;
+$mainFontFamily: "myriad-pro-semi-condensed", Helvetica, Arial, sans-serif;
+
+/* Styles */
+
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0 20px;
+  background-color: #333;
+  background-image: url("texturedbg.png");
+  color: $mainTextColor;
+  font-family: $mainFontFamily;
+  font-size: 100%;
+  font-weight: 400;
+  word-wrap: break-word;
+  -webkit-text-size-adjust: none;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
+section, article, header, footer, nav, aside, hgroup, div, form, svg {
+  display: block;
+}
+
+h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, iframe, form, fieldset, audio, video, applet, object, embed, hr, svg {
+  margin: 0 0 10px 0;
+  padding: 0;
+  vertical-align: baseline;
+}
+
+audio, video, applet, object, embed, iframe, img {
+  max-width: 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: $headerTextColor;
+  padding: 0;
+}
+
+.container {
+  padding: 10px 20px;
+  margin: auto;
+  background-color: $mainBgColor;
+  min-width: 720px;
+}
+
+table {
+  border: 2px solid $accentColor;
+  width: 100%;
+}
+
+table th {
+  background-color: $accentColor;
+  font-weight: 700;
+  text-align: center;
+}
+
+table td, table th {
+  border: 2px solid $accentColor;
+  padding: 4px;
+  margin: 4px;
+  font-size: 85%;
+}
+
+svg {
+  background-color: $accentColor;
+}
+
+path {
+  stroke: steelblue;
+  stroke-width: 2;
+  fill: none;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: grey;
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.trendline {
+  stroke: orange;
+  opacity: .50;
+}
+
+circle {
+  fill: #333333;
+}
+
+.chartname {
+  text-transform: uppercase;
+  font-weight: 700;
+  fill: $headerTextColor;
+}
