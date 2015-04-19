@@ -75,7 +75,7 @@
         year = parseInt(dateArray[2].split(" ")[0], 10);
         month = parseInt((dateArray[0] - 1), 10);
         day = parseInt(dateArray[1], 10);
-        date = new Date(year, month, day) || null;
+        date = new Date((2000 + year), month, day) || null;
       }
     } else {
       date = d;
@@ -92,69 +92,23 @@
     }
   }
 
-  function drawDataTable(data, columns) {
 
-    var table = d3.select("#tables")
-        .append("table");
-    var thead = table.append("thead");
-    var tbody = table.append("tbody");
-    var rows, cells;
+  function drawBoxOfficeChart(data, chartKey, chartBase, chartName) {
 
-    thead.append("tr")
-        .selectAll("th")
-        .data(columns["display"])
-        .enter()
-        .append("th")
-        .text(function (column) {
-          return column;
-        });
+    var margin = {top: 30, right: 120, bottom: 30, left: 120};
+    var width = 800 - margin.left - margin.right;
+    var height = 480 - margin.top - margin.bottom;
 
-    rows = tbody.selectAll("tr")
-        .data(data)
-        .enter()
-        .append("tr");
-
-    cells = rows.selectAll("td")
-        .data(function (row) {
-          return columns["id"].map(function (column) {
-            return {"column": column, "value": row[column]};
-          });
-        })
-        .enter()
-        .append("td")
-        .html(function (d) {
-          return d.value;
-        });
-
-  }
-
-
-  function drawBoxOfficeChart(data, chartKey, chartName) {
-
-    var margin = {top: 30, right: 65, bottom: 30, left: 80};
-    var width = 640 - margin.left - margin.right;
-    // var width = parseInt(d3.select('#charts').style('width'), 10) - margin.left - margin.right;
-    var height = 240 - margin.top - margin.bottom;
-
-    var x = d3.time.scale().range([0, width]);
+    var x = d3.scale.linear().range([0, width]);
     var y = d3.scale.linear().range([height, 0]);
 
     var xAxis = d3.svg.axis().scale(x)
         .orient("bottom")
-        .ticks(5);
+        .ticks(6);
 
     var yAxis = d3.svg.axis().scale(y)
         .orient("left")
         .ticks(5);
-
-    var valueLine = d3.svg.line()
-        .interpolate("monotone")
-        .x(function (d) {
-          return x(d.releaseDate);
-        })
-        .y(function (d) {
-          return y(d[chartKey]);
-        });
 
     var svg = d3.select("#charts")
         .append("svg")
@@ -165,17 +119,13 @@
 
     var line, linReg, linRegData;
 
-    x.domain(d3.extent(data, function (d) {
-      return d.releaseDate;
-    }));
+    x.domain([0, d3.max(data, function (d) {
+      return d[chartBase];
+    })]);
 
     y.domain([0, d3.max(data, function (d) {
       return d[chartKey];
     })]);
-
-    svg.append("path")
-        .attr("class", "line")
-        .attr("d", valueLine(data));
 
     svg.selectAll("dot")
         .data(data)
@@ -183,7 +133,7 @@
         .append("circle")
         .attr("r", "4")
         .attr("cx", function (d) {
-          return x(d.releaseDate);
+          return x(d[chartBase]);
         })
         .attr("cy", function (d) {
           return y(d[chartKey]);
@@ -194,8 +144,8 @@
               .attr("id", "tooltip-rect")
               .attr("fill", "#fff")
               .attr("stroke", "#7386b2")
-              .attr("x", parseFloat(d3.select(this).attr("cx")) - 60)
-              .attr("width", 120)
+              .attr("x", parseFloat(d3.select(this).attr("cx")) - 120)
+              .attr("width", 240)
               .attr("y", parseFloat(d3.select(this).attr("cy")) - 26)
               .attr("height", 20);
 
@@ -206,7 +156,7 @@
               .attr("text-anchor", "middle")
               .attr("font-size", "11px")
               .attr("font-weight", "700")
-              .attr("fill", "#444")
+              .attr("fill", "#f93")
               .text(d.title);
 
         })
@@ -238,20 +188,20 @@
 
     // Derive a linear regression
     linReg = ss.linear_regression().data(data.map(function (d) {
-      return [+d.releaseDate, +d[chartKey]];
+      return [+d[chartBase], +d[chartKey]];
     })).line();
 
     // Create a line based on the beginning and endpoints of the range
     linRegData = x.domain().map(function (d) {
       return {
-        release: new Date(d),
+        base: +(d),
         key: linReg(+d)
       };
     });
 
     line = d3.svg.line()
         .x(function (d) {
-          return x(d.release);
+          return x(d.base);
         })
         .y(function (d) {
           return y(d.key);
@@ -271,16 +221,14 @@
     var csvUrl = "2014box.csv";
 
     function Movie(m) {
+      // rank title totalGross maxTheaters openingDate simplePR
+      this.rank = +m.rank || null;
       this.title = m.title || null;
       this.totalGross = isWholeNumber(m.totalGross) ? +m.totalGross : null;
-      this.releaseDate = (m.releaseDate) ? convertStringToDate(m.releaseDate) : null;
-      this.openingGross = m.openingGross || +m.g1 || null;
-      this.openingTheaters = m.openingTheaters || +m.t1 || null;
-      this.maxTheaters = m.maxTheaters || +m.maxT || null;
-      this.imdbId = m.imdbId || m.imdbid || null;
-      this.performanceRating = Math.round(this.totalGross / this.maxTheaters) || null;
-      this.openingAverage = Math.round(this.openingGross / this.openingTheaters) || null;
-      this.openingGrossAsPercentOfTotal = Math.round(this.openingGross / this.totalGross * 100) || null;
+      this.openingDate = (m.openingDate) ? convertStringToDate(m.openingDate) : null;
+      this.maxTheaters = +m.maxTheaters || null;
+      this.simplePR = +m.simplePR || null;
+      this.totalGrossSqrt = Math.sqrt(Math.sqrt(this.totalGross)) || null;
     }
 
     Movie.prototype = {
@@ -315,18 +263,36 @@
         return new MovieList(movies);
       },
 
-      filterOutDhoom3: function () {
+      filterByMinGross: function (min) {
         var movies = this.getMovies();
         movies = movies.filter(function (m) {
-          return !(m.imdbId === "tt1833673");
+          return (m.totalGross >= min);
         });
         dir(movies);
         return new MovieList(movies);
       },
 
-      sortByReleaseDate: function (isDescending) {
+      filterByMinTheaters: function (min) {
         var movies = this.getMovies();
-        sortArrayByKey(movies, "releaseDate", isDescending);
+        movies = movies.filter(function (m) {
+          return (m.maxTheaters >= min);
+        });
+        dir(movies);
+        return new MovieList(movies);
+      },
+
+      filterByMaxTheaters: function (max) {
+        var movies = this.getMovies();
+        movies = movies.filter(function (m) {
+          return (m.maxTheaters <= max);
+        });
+        dir(movies);
+        return new MovieList(movies);
+      },
+
+      sortByopeningDate: function (isDescending) {
+        var movies = this.getMovies();
+        sortArrayByKey(movies, "openingDate", isDescending);
         return this;
       }
 
@@ -336,30 +302,17 @@
     // Fetch the data and start processing it.
     fetchCsvData(csvUrl, function (data) {
 
-      var yrMovieList, yrMovieData, yrNoDhoom3;
+      var myMovieList, myMovieData;
 
       log("Mapping raw data to Movie objects.");
-      yrMovieList = new MovieList(data);
+      myMovieList = new MovieList(data);
 
       log("Filtering and sorting data, only including movies with financial data.");
-      yrMovieData = yrMovieList.filterByHasFinancialData().sortByReleaseDate().getMovies();
-      yrNoDhoom3 = yrMovieList.filterByHasFinancialData().filterOutDhoom3().sortByReleaseDate().getMovies();
-
-      log("Drawing a data table.");
-      drawDataTable(yrMovieData, {
-        "id": ["title", "totalGross", "maxTheaters", "openingAverage", "releaseDate"],
-        "display": ["Movie Title", "Total Gross", "Max Theaters", "Opening Average", "Release Date"]
-      });
+      myMovieData = myMovieList.filterByHasFinancialData().filterByMinTheaters(50).getMovies();
 
       log("Drawing data charts.");
-      drawBoxOfficeChart(yrMovieData, "totalGross", "Total US Gross For Each Movie ($US)");
-      drawBoxOfficeChart(yrMovieData, "maxTheaters", "Highest # of Theaters In Which Each Movie Showed");
-      drawBoxOfficeChart(yrMovieData, "performanceRating", "Simple Performance Rating (Total Gross / Max Theaters)");
-      drawBoxOfficeChart(yrMovieData, "openingAverage", "Opening Weekend Per-Theater Average For Each Movie ($US)");
-      drawBoxOfficeChart(yrMovieData, "openingGrossAsPercentOfTotal", "Opening Gross as a Percentage of Total Gross");
+      drawBoxOfficeChart(myMovieData, "totalGrossSqrt", "maxTheaters", "Total Gross (double sqrt) over Max Theaters");
 
-      drawBoxOfficeChart(yrNoDhoom3, "totalGross", "Total US Grosses, Not Counting Dhoom 3 ($US)");
-      drawBoxOfficeChart(yrNoDhoom3, "openingAverage", "Opening Weekend Averages, Not Counting Dhoom 3 ($US)");
 
     });
 
