@@ -228,8 +228,8 @@
       this.openingDate = (m.openingDate) ? convertStringToDate(m.openingDate) : null;
       this.maxTheaters = +m.maxTheaters || null;
       this.simplePR = +m.simplePR || null;
-      this.totalGrossSqrt = Math.sqrt(Math.sqrt(Math.sqrt(this.totalGross))) || null;
-      this.maxTheatersSqrt = Math.sqrt(this.maxTheaters) || null;
+      this.totalGrossSqrt = Math.sqrt(Math.sqrt(this.totalGross))|| null;
+      this.maxTheatersSqrt = this.maxTheaters || null;
     }
 
     Movie.prototype = {
