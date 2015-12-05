@@ -228,8 +228,7 @@
       this.openingDate = (m.openingDate) ? convertStringToDate(m.openingDate) : null;
       this.maxTheaters = +m.maxTheaters || null;
       this.simplePR = +m.simplePR || null;
-      this.totalGrossSqrt = Math.sqrt(Math.sqrt(Math.sqrt(this.totalGross))) || null;
-      this.totalGrossRooted = Math.pow(this.totalGross, 1/4) || null;
+      this.totalGrossSqrt = Math.sqrt(Math.sqrt(this.totalGross))|| null;
       this.maxTheatersSqrt = Math.sqrt(this.maxTheaters) || null;
     }
 
@@ -313,7 +312,7 @@
       myMovieData = myMovieList.filterByHasFinancialData().filterByMinTheaters(50).getMovies();
 
       log("Drawing data charts.");
-      drawBoxOfficeChart(myMovieData, "totalGrossRooted", "maxTheaters", "Total Gross (multi-root) over Max Theaters");
+      drawBoxOfficeChart(myMovieData, "totalGrossSqrt", "maxTheaters", "Total Gross (double sqrt) over Max Theaters");
 
 
     });
