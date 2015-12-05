@@ -229,6 +229,7 @@
       this.maxTheaters = +m.maxTheaters || null;
       this.simplePR = +m.simplePR || null;
       this.totalGrossSqrt = Math.sqrt(Math.sqrt(Math.sqrt(this.totalGross))) || null;
+      this.totalGrossRooted = Math.pow(this.totalGross, 1/4) || null;
       this.maxTheatersSqrt = Math.sqrt(this.maxTheaters) || null;
     }
 
@@ -312,7 +313,7 @@
       myMovieData = myMovieList.filterByHasFinancialData().filterByMinTheaters(50).getMovies();
 
       log("Drawing data charts.");
-      drawBoxOfficeChart(myMovieData, "totalGrossSqrt", "maxTheatersSqrt", "Total Gross (triple sqrt) over Max Theaters (sqrt)");
+      drawBoxOfficeChart(myMovieData, "totalGrossRooted", "maxTheaters", "Total Gross (multi-root) over Max Theaters");
 
 
     });
